@@ -9,7 +9,7 @@ byte key[] =
 
 byte my_iv[] = 
 {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
 int bits = 128;
@@ -33,7 +33,6 @@ byte getRandomByte()
   return random(0,255);
 }
 
-//For now, max message length is 32
 void secureMessage(String message, byte encryptedBytesBuffer[])
 {
   setRandomIV();
@@ -42,10 +41,8 @@ void secureMessage(String message, byte encryptedBytesBuffer[])
 
 void encryptMessage(String message, byte encryptedBytesBuffer[])
 {
-  byte bytes[message.length() + 1];
-  getByteArray(message, bytes);
   byte paddedBytes[MESSAGE_LENGTH];
-  padBytes(bytes, paddedBytes, message.length() + 1, MESSAGE_LENGTH);
+  padBytes(message, paddedBytes, MESSAGE_LENGTH);
   encryptBlocks(paddedBytes, encryptedBytesBuffer, blocks);
 }
 
@@ -75,15 +72,23 @@ void getByteArray(String message, byte bytes[])
   message.getBytes(bytes, message.length() + 1);
 }
 
-void padBytes(byte bytes[], byte paddedBytes[], int byteArrLen, int desiredLength)
+void padBytes(String message, byte paddedBytes[], int desiredLength)
 {
-  for(int i = 0; i < byteArrLen; i++)
+  for(int i = 0; i < message.length(); i++)
   {
-    paddedBytes[i] = bytes[i];
+    paddedBytes[i] = message.charAt(i);
   }
-  for(int i = byteArrLen; i < desiredLength; i++)
+  for(int i = message.length(); i < desiredLength; i++)
   {
-    paddedBytes[i] = '\0';
+    paddedBytes[i] = 0x00;
+  }
+}
+
+void tackOnIV(byte unsecuredMessageBuffer[])
+{
+  for(int i = 0; i < MESSAGE_LENGTH * 2; i++)
+  {
+    unsecuredMessageBuffer[i + MESSAGE_LENGTH] = my_iv[i];
   }
 }
 

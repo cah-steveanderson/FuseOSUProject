@@ -27,14 +27,3 @@ long getCurrentDateTime()
   return rtc.getUnixTime(rtc.getTime());
 } 
 
-String getDateTimeShortFormat()
-{
-  String dt = String(rtc.getDateStr());
-  //TODO Update library to do this - Replacing . and : with empty for now...
-  dt.replace(".", "");
-  dt += rtc.getTimeStr();
-  dt.replace(":", "");
-  
-  return dt;
-}
-

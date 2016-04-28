@@ -102,11 +102,9 @@ void rxCallback(uint8_t *buffer, uint8_t len)
 
 void setupBLE()
 { 
-  //Serial.begin(9600);
   Serial.println(F("BLE Initialized"));
 
   uart.setRXcallback(rxCallback);
-  // uart.setDeviceName("NEWNAME"); /* 7 characters max! */
   uart.begin();
 }
 
@@ -116,20 +114,10 @@ void processBLE()
   while(messageQueue.count() > 0 && uart.getState() == ACI_EVT_CONNECTED)
   {
     byte* ptr = messageQueue.pop();
-    String message = ByteArrayToString(ptr);
+    String message = ByteArrayToString(ptr, MESSAGE_LENGTH * 2);
     free(ptr);
-    Serial.println(message);
-    if (message.length() < 32)
-    {
-      //uint8_t buffer[32];
-      //message.getBytes(buffer, message.length() + 1);
-      Serial.print(F("About to write to BLE: "));
-      //Serial.println(String((char *)buffer));
-      Serial.println(message);
-      //uart.write(buffer, 32);
-      //uart.print(String((char*)buffer));
-      uart.print(message);
-    }
+    Serial.print(F("About to write to BLE: "));
+    uart.print(message);
   }
 }
 

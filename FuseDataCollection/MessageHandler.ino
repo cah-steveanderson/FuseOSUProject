@@ -15,18 +15,19 @@ void saveMessage(String message)
   
   if(encryptionEnabled)
   {
-    byte encryptedMessageBuffer[32]; 
+    byte* encryptedMessageBuffer = (byte*)malloc(MESSAGE_LENGTH * 2 *sizeof(byte)); 
     secureMessage(message, encryptedMessageBuffer);
-    String securedMessage = ByteArrayToString(encryptedMessageBuffer);
+    tackOnIV(encryptedMessageBuffer);
+    String securedMessage = ByteArrayToString(encryptedMessageBuffer, MESSAGE_LENGTH*2);
     Serial.println(securedMessage);
     messageQueue.push((encryptedMessageBuffer));
   }
   else
   {
-    byte* unsecuredMessageBuffer = (byte*)malloc(32*sizeof(byte));
-    byte* unsecuredPaddedMessageBuffer = (byte*)malloc(32*sizeof(byte));
-    getByteArray(message, unsecuredMessageBuffer);
-    padBytes(unsecuredMessageBuffer, unsecuredPaddedMessageBuffer, message.length() + 1, 32);
+    byte* unsecuredMessageBuffer = (byte*)malloc(MESSAGE_LENGTH * 2 *sizeof(byte));
+    padBytes(message, unsecuredMessageBuffer, MESSAGE_LENGTH);
+    tackOnIV(unsecuredMessageBuffer);
+    Serial.println(message);
     messageQueue.push(unsecuredMessageBuffer);
   }
   
@@ -54,10 +55,14 @@ byte* fillMessageDateTime(byte message[], long t)
   return message;
 }
 
-String ByteArrayToString(byte byteArray[])
+String ByteArrayToString(byte byteArray[], int len)
 {
-  //This is potentially dangerous if byte array does not end in null terminating character
-  return String((char*)byteArray);
+  String s = "";
+  for(int i = 0; i < len; i++)
+  {
+    s += (char)byteArray[i];
+  }
+  return s;
 }
 
 
